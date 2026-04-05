@@ -1,0 +1,176 @@
+import {
+  AIInsightsPayload,
+  AuthSession,
+  AuthUser,
+  BackendTask,
+  TaskFormValues,
+} from "./types";
+
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5000";
+
+export class ApiError extends Error {
+  status: number;
+  payload: unknown;
+
+  constructor(message: string, status: number, payload: unknown) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+    this.payload = payload;
+  }
+}
+
+type RequestOptions = RequestInit & {
+  token?: string | null;
+  json?: unknown;
+};
+
+async function request<T>(path: string, options: RequestOptions = {}) {
+  const headers = new Headers(options.headers);
+
+  if (options.token) {
+    headers.set("Authorization", `Bearer ${options.token}`);
+  }
+
+  let body = options.body;
+  if (options.json !== undefined) {
+    headers.set("Content-Type", "application/json");
+    body = JSON.stringify(options.json);
+  }
+
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    ...options,
+    headers,
+    body,
+  });
+
+  const contentType = response.headers.get("content-type") ?? "";
+  const payload = contentType.includes("application/json")
+    ? await response.json().catch(() => null)
+    : null;
+
+  if (!response.ok) {
+    throw new ApiError(
+      (payload as { message?: string } | null)?.message ??
+        `Request failed with status ${response.status}`,
+      response.status,
+      payload,
+    );
+  }
+
+  return payload as T;
+}
+
+export interface AuthResponse {
+  success: boolean;
+  message?: string;
+  data?: AuthUser & { _id?: string };
+  token: string;
+}
+
+export function normalizeAuthUser(
+  user: (AuthUser & { _id?: string }) | undefined,
+  fallbackEmail = "",
+): AuthUser {
+  if (!user) {
+    return {
+      id: "",
+      name: fallbackEmail.split("@")[0] || "User",
+      email: fallbackEmail,
+    };
+  }
+
+  return {
+    id: user.id ?? user._id ?? "",
+    name: user.name || fallbackEmail.split("@")[0] || "User",
+    email: user.email || fallbackEmail,
+  };
+}
+
+export async function registerUser(payload: {
+  name: string;
+  email: string;
+  password: string;
+}) {
+  return request<AuthResponse>("/api/auth/register", {
+    method: "POST",
+    json: payload,
+  });
+}
+
+export async function loginUser(payload: { email: string; password: string }) {
+  return request<AuthResponse>("/api/auth/login", {
+    method: "POST",
+    json: payload,
+  });
+}
+
+export async function getSession(token: string) {
+  return request<{ userId: string }>("/me", {
+    method: "GET",
+    token,
+  });
+}
+
+export async function getTasks(token: string) {
+  return request<{ success: boolean; data: BackendTask[] }>("/api/task", {
+    method: "GET",
+    token,
+  });
+}
+
+export async function createTask(token: string, payload: TaskFormValues) {
+  return request<{ success: boolean; data: BackendTask }>("/api/task", {
+    method: "POST",
+    token,
+    json: payload,
+  });
+}
+
+export async function updateTask(
+  token: string,
+  taskId: string,
+  payload: TaskFormValues,
+) {
+  return request<{ success: boolean; data: BackendTask }>(
+    `/api/task/${taskId}`,
+    {
+      method: "PATCH",
+      token,
+      json: payload,
+    },
+  );
+}
+
+export async function completeTask(token: string, taskId: string) {
+  return request<{ success: boolean; data: BackendTask }>(
+    `/api/task/${taskId}/complete`,
+    {
+      method: "PATCH",
+      token,
+    },
+  );
+}
+
+export async function deleteTask(token: string, taskId: string) {
+  return request<{ success: boolean; message?: string }>(
+    `/api/task/${taskId}`,
+    {
+      method: "DELETE",
+      token,
+    },
+  );
+}
+
+export async function getInsights(token: string) {
+  return request<{ success: boolean; data: AIInsightsPayload }>(
+    "/api/insights",
+    {
+      method: "GET",
+      token,
+    },
+  );
+}
+
+export type { AuthSession, AuthUser, BackendTask };
