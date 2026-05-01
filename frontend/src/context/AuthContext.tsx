@@ -20,7 +20,6 @@ import type { AuthSession, AuthUser } from "@/lib/types";
 const STORAGE_KEY = "optiflow-auth";
 
 interface AuthContextValue {
-  token: string | null;
   user: AuthUser | null;
   loading: boolean;
   isAuthenticated: boolean;
@@ -59,27 +58,18 @@ function writeStoredSession(session: AuthSession | null) {
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [token, setToken] = useState<string | null>(() => {
-    const session = readStoredSession();
-    return session?.token ?? null;
-  });
-  const [user, setUser] = useState<AuthUser | null>(() => {
-    const session = readStoredSession();
-    return session?.user ?? null;
-  });
-  const [loading] = useState(false);
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const [loading, setLoading] = useState(true);
 
   const persistSession = useCallback((session: AuthSession | null) => {
-    writeStoredSession(session);
-    setToken(session?.token ?? null);
+    // persist only the non-sensitive user object; token is HttpOnly cookie
+    writeStoredSession(session ? { ...session, token: undefined } : null);
     setUser(session?.user ?? null);
   }, []);
 
   const refreshSession = useCallback(async () => {
-    if (!token) return;
-
     try {
-      const session = await getSession(token);
+      const session = await getSession();
       setUser((currentUser) => {
         if (!currentUser) {
           return {
@@ -97,26 +87,69 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch {
       persistSession(null);
     }
-  }, [token, persistSession]);
+  }, [persistSession]);
 
   useEffect(() => {
-    if (!token) return;
+    let cancelled = false;
+
+    const initializeSession = async () => {
+      const storedSession = readStoredSession();
+
+      if (!storedSession?.user) {
+        if (!cancelled) {
+          setLoading(false);
+        }
+        return;
+      }
+
+      if (!cancelled) {
+        setUser(storedSession.user ?? null);
+      }
+
+      try {
+        const session = await getSession();
+        if (!cancelled) {
+          setUser((currentUser) => ({
+            id: session.userId,
+            name: currentUser?.name || "User",
+            email: currentUser?.email || "",
+          }));
+        }
+      } catch {
+        if (!cancelled) {
+          persistSession(null);
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    };
+
+    void initializeSession();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [persistSession]);
+
+  useEffect(() => {
+    if (loading || !user) return;
 
     const timeoutId = window.setTimeout(() => {
       void refreshSession();
     }, 0);
 
     return () => window.clearTimeout(timeoutId);
-  }, [token, refreshSession]);
+  }, [loading, user, refreshSession]);
 
   const login = useCallback(
     async (payload: { email: string; password: string }) => {
       const response = await loginUser(payload);
       const sessionUser = normalizeAuthUser(undefined, payload.email);
-      const me = await getSession(response.token);
+      const me = await getSession();
 
       persistSession({
-        token: response.token,
         user: {
           ...sessionUser,
           id: me.userId,
@@ -132,8 +165,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const data = response.data;
       const userData = normalizeAuthUser(data, payload.email);
 
+      // backend may set auth cookie during registration/login; persist user
       persistSession({
-        token: response.token,
         user: {
           ...userData,
           id: data?.id ?? data?._id ?? userData.id,
@@ -149,16 +182,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo(
     () => ({
-      token,
       user,
       loading,
-      isAuthenticated: Boolean(token),
+      isAuthenticated: Boolean(user),
       login,
       register,
       logout,
       refreshSession,
     }),
-    [token, user, loading, login, register, logout, refreshSession],
+    [user, loading, login, register, logout, refreshSession],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

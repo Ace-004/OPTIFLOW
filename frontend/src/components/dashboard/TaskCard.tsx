@@ -1,17 +1,18 @@
 "use client";
 
+import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import {
-  Calendar,
-  CheckCircle2,
-  Clock3,
-  Edit2,
-  Sparkles,
-  Trash2,
-} from "lucide-react";
+  LuCalendar as Calendar,
+  LuCircleCheckBig as CheckCircle2,
+  LuClock3 as Clock3,
+  LuPencil as Edit2,
+  LuTarget as Target,
+  LuTrash2 as Trash2,
+} from "react-icons/lu";
 import { BackendTask } from "@/lib/types";
 import {
   formatTaskDate,
@@ -37,12 +38,15 @@ const TaskCard = ({
   onDelete,
   compact = false,
 }: TaskCardProps) => {
+  const [expanded, setExpanded] = useState(false);
   const isCompleted = Boolean(task.completedAt);
   const priorityScore = getPriorityScore(task);
   const priorityLabel = getPriorityLabel(priorityScore);
   const priorityTone = getPriorityTone(priorityScore);
   const headline = getTaskHeadline(task);
   const body = getTaskBody(task);
+  const canExpand =
+    !compact && (headline.length > 88 || (body?.trim().length ?? 0) > 120);
 
   return (
     <div
@@ -66,16 +70,31 @@ const TaskCard = ({
             <div className="flex-1">
               <h3
                 className={cn(
-                  "line-clamp-1 font-semibold text-slate-900 dark:text-white",
+                  "font-semibold text-slate-900 dark:text-white",
+                  !expanded && "line-clamp-1",
                   isCompleted && "text-slate-500 line-through",
                 )}
               >
                 {headline}
               </h3>
               {!compact && body && (
-                <p className="mt-1 line-clamp-2 text-sm text-slate-500 dark:text-slate-400">
+                <p
+                  className={cn(
+                    "mt-1 text-sm text-slate-500 dark:text-slate-400",
+                    !expanded && "line-clamp-2",
+                  )}
+                >
                   {body}
                 </p>
+              )}
+              {canExpand && (
+                <button
+                  type="button"
+                  className="mt-2 text-xs font-semibold text-violet-600 hover:text-violet-700"
+                  onClick={() => setExpanded((current) => !current)}
+                >
+                  {expanded ? "Show less" : "Show full task"}
+                </button>
               )}
             </div>
 
@@ -106,7 +125,7 @@ const TaskCard = ({
               variant="outline"
               className={cn("text-xs capitalize", priorityTone)}
             >
-              <Sparkles className="mr-1 h-3 w-3" />
+              <Target className="mr-1 h-3 w-3" />
               {priorityLabel}
               {priorityScore > 0 ? ` · ${priorityScore}` : ""}
             </Badge>

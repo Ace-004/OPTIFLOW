@@ -1,6 +1,7 @@
 // 'use client';
 
 import Link from "next/link";
+import { LuZap as Zap } from "react-icons/lu";
 import { Button } from "./ui/button";
 
 const Header = () => {
@@ -9,19 +10,7 @@ const Header = () => {
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
         <Link href="/" className="flex items-center gap-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-linear-to-br from-violet-600 to-indigo-600">
-            <svg
-              className="w-5 h-5 text-white"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M13 10V3L4 14h7v7l9-11h-7z"
-              />
-            </svg>
+            <Zap className="w-5 h-5 text-white" />
           </div>
           <span className="bg-linear-to-r from-violet-600 to-indigo-600 bg-clip-text text-xl font-bold text-transparent">
             OptiFlow

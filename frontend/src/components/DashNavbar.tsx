@@ -2,19 +2,21 @@
 
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Moon, Sun } from "lucide-react";
+import { LuMenu as Menu, LuMoon as Moon, LuSun as Sun } from "react-icons/lu";
 import { useTheme } from "@/context/ThemeContext";
 
 interface DashNavbarProps {
   userName?: string;
   userEmail?: string;
   userAvatar?: string;
+  onMenuClick?: () => void;
 }
 
 const DashNavbar = ({
   userName = "John Doe",
   userEmail = "john@example.com",
   userAvatar,
+  onMenuClick,
 }: DashNavbarProps) => {
   const { theme, toggleTheme } = useTheme();
 
@@ -22,6 +24,19 @@ const DashNavbar = ({
     <header className="sticky top-0 z-30 border-b border-slate-200/80 bg-white/85 shadow-[0_1px_0_rgba(15,23,42,0.05)] backdrop-blur-md dark:border-slate-800 dark:bg-slate-950/80">
       <div className="flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
         <div className="min-w-0">
+          <div className="mb-1 flex items-center gap-2 lg:hidden">
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              onClick={onMenuClick}
+              aria-label="Open navigation"
+            >
+              <Menu className="h-5 w-5" />
+            </Button>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-violet-600">
+              OptiFlow
+            </p>
+          </div>
           <p className="text-xs font-medium uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">
             Workspace
           </p>

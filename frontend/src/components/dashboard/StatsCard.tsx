@@ -1,13 +1,13 @@
 import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
-import { LucideIcon } from "lucide-react";
+import type { IconType } from "react-icons";
 
 interface StatsCardProps {
   title: string;
   value: string | number;
   change?: string;
   changeType?: "positive" | "negative" | "neutral";
-  icon: LucideIcon;
+  icon: IconType;
   iconColor?: string;
   iconBgColor?: string;
 }

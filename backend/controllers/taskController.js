@@ -84,7 +84,6 @@ exports.getTask = async (req, res, next) => {
     for (const task of active) {
       const dynamic = reprioritizeTask(task, behaviorRisk);
       task.priorityDynamic = dynamic;
-      task.priorityDyanmic = dynamic;
       task.lastEvaluatedAt = new Date();
       await task.save();
     }
@@ -186,6 +185,7 @@ exports.updateTask = async (req, res) => {
 
     await task.save();
     await redis.safeDel(`tasks:${req.user}`);
+    await redis.safeDel(`insights:${req.user}`);
     res.status(200).json({ success: true, data: task });
   } catch (error) {
     console.error(error);

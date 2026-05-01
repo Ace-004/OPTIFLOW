@@ -46,8 +46,7 @@ export function formatInputDate(value?: string | null) {
 }
 
 export function getTaskHeadline(task: BackendTask) {
-  const headline = task.summary?.trim() || task.description.trim();
-  return headline.length > 88 ? `${headline.slice(0, 88).trim()}...` : headline;
+  return task.summary?.trim() || task.description.trim();
 }
 
 export function getTaskBody(task: BackendTask) {

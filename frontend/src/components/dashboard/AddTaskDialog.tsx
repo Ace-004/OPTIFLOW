@@ -1,7 +1,11 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { CalendarPlus, Loader2, Sparkles } from "lucide-react";
+import {
+  LuCalendarPlus as CalendarPlus,
+  LuLoaderCircle as Loader2,
+  LuSparkles as Sparkles,
+} from "react-icons/lu";
 import { useTasks } from "@/context/TaskContext";
 import { Button } from "@/components/ui/button";
 import {

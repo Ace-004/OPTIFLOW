@@ -1,7 +1,17 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Plus, RefreshCcw, Sparkles, TrendingUp } from "lucide-react";
+import {
+  LuPlus as Plus,
+  LuRefreshCcw as RefreshCcw,
+  LuSparkles as Sparkles,
+  LuTrendingUp as TrendingUp,
+  LuCircleCheckBig as CheckCircle2,
+  LuClock3 as Clock3,
+  LuFlame as Flame,
+  LuListTodo as ListTodo,
+  LuTarget as Target,
+} from "react-icons/lu";
 import AddTaskDialog from "@/components/dashboard/AddTaskDialog";
 import AIInsightsCard from "@/components/dashboard/AIInsightsCard";
 import CompleteTaskDialog from "@/components/dashboard/CompleteTaskDialog";
@@ -17,10 +27,9 @@ import { getInsights } from "@/lib/api";
 import type { BackendTask } from "@/lib/types";
 import type { AIInsightsPayload } from "@/lib/types";
 import { formatTaskDate } from "@/lib/task-utils";
-import { CheckCircle2, Clock3, Flame, ListTodo, Target } from "lucide-react";
 
 export default function DashboardPage() {
-  const { user, token } = useAuth();
+  const { user } = useAuth();
   const {
     tasks,
     completedTasks,
@@ -63,7 +72,7 @@ export default function DashboardPage() {
     : 0;
 
   useEffect(() => {
-    if (!token) {
+    if (!user) {
       setInsightsPayload(null);
       return;
     }
@@ -74,7 +83,7 @@ export default function DashboardPage() {
       setInsightsLoading(true);
       setInsightsError(null);
       try {
-        const response = await getInsights(token);
+        const response = await getInsights();
         if (!cancelled) {
           setInsightsPayload(response.data);
         }
@@ -98,13 +107,7 @@ export default function DashboardPage() {
     return () => {
       cancelled = true;
     };
-  }, [
-    token,
-    stats.total,
-    stats.completed,
-    stats.active,
-    stats.averagePriority,
-  ]);
+  }, [user, stats.total, stats.completed, stats.active, stats.averagePriority]);
 
   return (
     <div className="motion-fade-up space-y-6">
@@ -114,7 +117,7 @@ export default function DashboardPage() {
             <Sparkles className="h-4 w-4" />
             AI-powered task control
           </div>
-          <h1 className="text-3xl font-semibold tracking-tight text-slate-950 dark:text-slate-100">
+          <h1 className="text-2xl font-semibold tracking-tight text-slate-950 dark:text-slate-100 sm:text-3xl">
             Good to see you, {displayName}
           </h1>
           <p className="mt-1 max-w-2xl text-slate-500 dark:text-slate-400">
@@ -123,13 +126,17 @@ export default function DashboardPage() {
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3">
-          <Button variant="outline" onClick={() => void refreshTasks()}>
+        <div className="flex w-full flex-col items-stretch gap-3 sm:w-auto sm:flex-row sm:items-center">
+          <Button
+            variant="outline"
+            className="w-full sm:w-auto"
+            onClick={() => void refreshTasks()}
+          >
             <RefreshCcw className="mr-2 h-4 w-4" />
             Refresh
           </Button>
           <Button
-            className="bg-linear-to-r from-violet-600 to-indigo-600 text-white hover:from-violet-700 hover:to-indigo-700"
+            className="w-full bg-linear-to-r from-violet-600 to-indigo-600 text-white hover:from-violet-700 hover:to-indigo-700 sm:w-auto"
             onClick={() => setCreateOpen(true)}
           >
             <Plus className="mr-2 h-4 w-4" />

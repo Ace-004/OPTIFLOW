@@ -1,5 +1,6 @@
 const mongoose=require('mongoose');
 const bcrypt=require('bcrypt');
+// const {z}=require('zod');
 const userSchema = mongoose.Schema({
   name:{
     type:String,

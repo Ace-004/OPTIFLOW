@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2 } from "lucide-react";
+import { LuLoaderCircle as Loader2 } from "react-icons/lu";
 import { useAuth } from "@/context/AuthContext";
 import type { ReactNode } from "react";
 

@@ -8,6 +8,7 @@ import type { ReactNode } from "react";
 
 export default function DashboardShell({ children }: { children: ReactNode }) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const { user } = useAuth();
 
   return (
@@ -15,13 +16,16 @@ export default function DashboardShell({ children }: { children: ReactNode }) {
       <Sidebar
         collapsed={sidebarCollapsed}
         onToggle={() => setSidebarCollapsed((current) => !current)}
+        mobileOpen={mobileSidebarOpen}
+        onCloseMobile={() => setMobileSidebarOpen(false)}
       />
-      <div className={sidebarCollapsed ? "ml-16" : "ml-64"}>
+      <div className={sidebarCollapsed ? "lg:ml-16" : "lg:ml-64"}>
         <DashNavbar
           userName={user?.name ?? "User"}
           userEmail={user?.email ?? "Connected session"}
+          onMenuClick={() => setMobileSidebarOpen((current) => !current)}
         />
-        <main className="mx-auto w-full max-w-[1400px] p-5 sm:p-6 lg:p-8">
+        <main className="mx-auto w-full max-w-350 p-5 sm:p-6 lg:p-8">
           {children}
         </main>
       </div>

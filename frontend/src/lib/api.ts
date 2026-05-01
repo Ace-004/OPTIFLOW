@@ -22,16 +22,11 @@ export class ApiError extends Error {
 }
 
 type RequestOptions = RequestInit & {
-  token?: string | null;
   json?: unknown;
 };
 
 async function request<T>(path: string, options: RequestOptions = {}) {
   const headers = new Headers(options.headers);
-
-  if (options.token) {
-    headers.set("Authorization", `Bearer ${options.token}`);
-  }
 
   let body = options.body;
   if (options.json !== undefined) {
@@ -40,6 +35,8 @@ async function request<T>(path: string, options: RequestOptions = {}) {
   }
 
   const response = await fetch(`${API_BASE_URL}${path}`, {
+    // send cookies (HttpOnly) for auth-aware requests
+    credentials: "include",
     ...options,
     headers,
     body,
@@ -66,7 +63,7 @@ export interface AuthResponse {
   success: boolean;
   message?: string;
   data?: AuthUser & { _id?: string };
-  token: string;
+  token?: string;
 }
 
 export function normalizeAuthUser(
@@ -106,69 +103,58 @@ export async function loginUser(payload: { email: string; password: string }) {
   });
 }
 
-export async function getSession(token: string) {
+export async function getSession() {
   return request<{ userId: string }>("/me", {
     method: "GET",
-    token,
   });
 }
 
-export async function getTasks(token: string) {
+export async function getTasks() {
   return request<{ success: boolean; data: BackendTask[] }>("/api/task", {
     method: "GET",
-    token,
   });
 }
 
-export async function createTask(token: string, payload: TaskFormValues) {
+export async function createTask(payload: TaskFormValues) {
   return request<{ success: boolean; data: BackendTask }>("/api/task", {
     method: "POST",
-    token,
     json: payload,
   });
 }
 
-export async function updateTask(
-  token: string,
-  taskId: string,
-  payload: TaskFormValues,
-) {
+export async function updateTask(taskId: string, payload: TaskFormValues) {
   return request<{ success: boolean; data: BackendTask }>(
     `/api/task/${taskId}`,
     {
       method: "PATCH",
-      token,
       json: payload,
     },
   );
 }
 
-export async function completeTask(token: string, taskId: string) {
+export async function completeTask(taskId: string) {
   return request<{ success: boolean; data: BackendTask }>(
     `/api/task/${taskId}/complete`,
     {
       method: "PATCH",
-      token,
     },
   );
 }
 
-export async function deleteTask(token: string, taskId: string) {
+export async function deleteTask(taskId: string) {
   return request<{ success: boolean; message?: string }>(
     `/api/task/${taskId}`,
     {
       method: "DELETE",
-      token,
     },
   );
 }
 
-export async function getInsights(token: string) {
+export async function getInsights() {
   return request<{ success: boolean; data: AIInsightsPayload }>(
     "/api/insights",
     {
       method: "GET",
-      token,
     },
   );
 }

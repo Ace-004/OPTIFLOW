@@ -20,13 +20,19 @@ exports.register = async (req, res, next) => {
       provider: "local",
     });
     const token = generateToken(newUser._id);
+
+    res.cookie('token',token,{
+      httpOnly:true,
+      secure:false,
+      sameSite:"none",
+      maxAge:60*60*1000
+    })
     res
       .status(201)
       .json({
         success: true,
         message: "user registered",
-        data: newUser,
-        token,
+        data: newUser
       });
   } catch (error) {
     console.log(error.message);
@@ -51,7 +57,13 @@ exports.login = async (req, res) => {
       return res.status(400).json({ message: "invalid credentials" });
     }
     const token = generateToken(user._id);
-    res.status(200).json({ success: true, message: "successful login", token });
+     res.cookie('token',token,{
+      httpOnly:true,
+      secure:false,
+      sameSite:"none",
+      maxAge:60*60*1000
+    })
+    res.status(200).json({ success: true, message: "successful login"  });
   } catch (err) {
     console.log(err);
     return res.status(500).json({ success: false, message: "server error" });

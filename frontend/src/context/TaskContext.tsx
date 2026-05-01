@@ -36,14 +36,14 @@ interface TaskContextValue {
 const TaskContext = createContext<TaskContextValue | undefined>(undefined);
 
 export function TaskProvider({ children }: { children: ReactNode }) {
-  const { token, isAuthenticated } = useAuth();
+  const { isAuthenticated } = useAuth();
   const [tasks, setTasks] = useState<BackendTask[]>([]);
   const [completedTasks, setCompletedTasks] = useState<BackendTask[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const refreshTasks = useCallback(async () => {
-    if (!token) {
+    if (!isAuthenticated) {
       setTasks([]);
       setError(null);
       return;
@@ -51,7 +51,7 @@ export function TaskProvider({ children }: { children: ReactNode }) {
 
     setLoading(true);
     try {
-      const response = await getTasksRequest(token);
+      const response = await getTasksRequest();
       const activeTasks = Array.isArray(response.data)
         ? response.data.sort(
             (left, right) => getPriorityScore(right) - getPriorityScore(left),
@@ -65,7 +65,7 @@ export function TaskProvider({ children }: { children: ReactNode }) {
     } finally {
       setLoading(false);
     }
-  }, [token]);
+  }, [isAuthenticated]);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -75,27 +75,27 @@ export function TaskProvider({ children }: { children: ReactNode }) {
       setCompletedTasks([]);
       setError(null);
     }
-  }, [isAuthenticated, token, refreshTasks]);
+  }, [isAuthenticated, refreshTasks]);
 
   const createTask = useCallback(
     async (payload: TaskFormValues) => {
-      if (!token) return;
+      if (!isAuthenticated) return;
 
-      const response = await createTaskRequest(token, payload);
+      const response = await createTaskRequest(payload);
       setTasks((current) =>
         [response.data, ...current].sort(
           (left, right) => getPriorityScore(right) - getPriorityScore(left),
         ),
       );
     },
-    [token],
+    [isAuthenticated],
   );
 
   const updateTask = useCallback(
     async (taskId: string, payload: TaskFormValues) => {
-      if (!token) return;
+      if (!isAuthenticated) return;
 
-      const response = await updateTaskRequest(token, taskId, payload);
+      const response = await updateTaskRequest(taskId, payload);
       setTasks((current) =>
         current
           .map((task) => (task._id === taskId ? response.data : task))
@@ -104,31 +104,31 @@ export function TaskProvider({ children }: { children: ReactNode }) {
           ),
       );
     },
-    [token],
+    [isAuthenticated],
   );
 
   const completeTask = useCallback(
     async (taskId: string) => {
-      if (!token) return;
+      if (!isAuthenticated) return;
 
-      const response = await completeTaskRequest(token, taskId);
+      const response = await completeTaskRequest(taskId);
       setTasks((current) => current.filter((task) => task._id !== taskId));
       setCompletedTasks((current) => [response.data, ...current]);
     },
-    [token],
+    [isAuthenticated],
   );
 
   const deleteTask = useCallback(
     async (taskId: string) => {
-      if (!token) return;
+      if (!isAuthenticated) return;
 
-      await deleteTaskRequest(token, taskId);
+      await deleteTaskRequest(taskId);
       setTasks((current) => current.filter((task) => task._id !== taskId));
       setCompletedTasks((current) =>
         current.filter((task) => task._id !== taskId),
       );
     },
-    [token],
+    [isAuthenticated],
   );
 
   const stats = useMemo<TaskStats>(() => {

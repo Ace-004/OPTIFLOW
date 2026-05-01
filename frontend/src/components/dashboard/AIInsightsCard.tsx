@@ -1,19 +1,17 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import type { AIInsight } from "@/lib/types";
 import {
-  Sparkles,
-  TrendingUp,
-  Clock,
-  Target,
-  Brain,
-  ArrowRight,
-  Zap,
-} from "lucide-react";
+  LuArrowRight,
+  LuBrain,
+  LuClock3,
+  LuSparkles,
+  LuTarget,
+  LuTrendingUp,
+  LuZap,
+} from "react-icons/lu";
 
 interface AIInsightsCardProps {
   insights?: AIInsight[];
@@ -53,22 +51,22 @@ const defaultInsights: AIInsight[] = [
 
 const typeConfig = {
   suggestion: {
-    icon: Sparkles,
+    icon: LuSparkles,
     color: "text-violet-600",
     bgColor: "bg-violet-100",
   },
   pattern: {
-    icon: TrendingUp,
+    icon: LuTrendingUp,
     color: "text-blue-600",
     bgColor: "bg-blue-100",
   },
   optimization: {
-    icon: Zap,
+    icon: LuZap,
     color: "text-amber-600",
     bgColor: "bg-amber-100",
   },
   reminder: {
-    icon: Clock,
+    icon: LuClock3,
     color: "text-green-600",
     bgColor: "bg-green-100",
   },
@@ -83,51 +81,53 @@ const AIInsightsCard = ({
   error = null,
 }: AIInsightsCardProps) => {
   return (
-    <Card className="motion-scale-in surface-card overflow-hidden">
-      {/* Header with Gradient */}
-      <CardHeader className="bg-linear-to-r from-violet-600 to-indigo-600 pb-8 text-white">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
-              <Brain className="w-5 h-5" />
+    <Card className="motion-scale-in surface-card overflow-hidden border-violet-200/50 dark:border-violet-900/40">
+      {/* Header with soft glow */}
+      <CardHeader className="relative overflow-hidden bg-linear-to-r from-violet-600/95 via-indigo-600/95 to-blue-600/95 px-5 py-5 sm:px-6 sm:py-6 text-white">
+        <div className="pointer-events-none absolute -right-10 -top-10 h-36 w-36 rounded-full bg-white/20 blur-2xl" />
+        <div className="pointer-events-none absolute -left-8 bottom-0 h-24 w-24 rounded-full bg-violet-300/30 blur-2xl" />
+
+        <div className="relative flex items-start gap-3">
+          <div className="flex items-center gap-3">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/25 bg-white/15 shadow-sm backdrop-blur">
+              <LuBrain className="h-5 w-5" />
             </div>
-            <div>
-              <CardTitle className="text-white">AI Insights</CardTitle>
-              <p className="text-violet-200 text-sm">
+            <div className="rounded-xl border border-white/20 bg-white/10 px-3 py-2 backdrop-blur-sm">
+              <CardTitle className="text-lg font-semibold text-white">
+                AI Insights
+              </CardTitle>
+              <p className="mt-0.5 text-sm text-violet-100/90">
                 Powered by behavioral analysis
               </p>
             </div>
           </div>
-          <Badge className="bg-white/20 text-white hover:bg-white/30 border-0">
-            Live
-          </Badge>
         </div>
       </CardHeader>
 
-      <CardContent className="pt-0">
-        {/* Stats Row - Overlapping Header */}
-        <div className="grid grid-cols-3 gap-4 -mt-4">
-          <div className="surface-muted p-4 text-center">
+      <CardContent className="pt-4">
+        {/* Stats Row */}
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
+          <div className="surface-muted rounded-2xl p-4 text-center">
             <div className="flex items-center justify-center gap-1 text-violet-600 mb-1">
-              <Target className="w-4 h-4" />
+              <LuTarget className="h-4 w-4" />
               <span className="text-xs font-medium">Score</span>
             </div>
             <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">
               {productivityScore}%
             </p>
           </div>
-          <div className="surface-muted p-4 text-center">
+          <div className="surface-muted rounded-2xl p-4 text-center">
             <div className="flex items-center justify-center gap-1 text-blue-600 mb-1">
-              <Clock className="w-4 h-4" />
+              <LuClock3 className="h-4 w-4" />
               <span className="text-xs font-medium">Focus</span>
             </div>
             <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">
               {focusTime}
             </p>
           </div>
-          <div className="surface-muted p-4 text-center">
+          <div className="surface-muted rounded-2xl p-4 text-center">
             <div className="flex items-center justify-center gap-1 text-green-600 mb-1">
-              <TrendingUp className="w-4 h-4" />
+              <LuTrendingUp className="h-4 w-4" />
               <span className="text-xs font-medium">Done</span>
             </div>
             <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">
@@ -137,11 +137,9 @@ const AIInsightsCard = ({
         </div>
 
         {/* Progress Section */}
-        <div className="mt-6 space-y-2">
+        <div className="mt-6 space-y-2 rounded-xl border border-slate-200/70 bg-white/70 p-3 dark:border-slate-800 dark:bg-slate-950/55">
           <div className="flex justify-between text-sm">
-            <span className="text-slate-600">
-              Daily Goal Progress (completion rate)
-            </span>
+            <span className="text-slate-600">Overall Completion Progress</span>
             <span className="font-medium text-slate-900 dark:text-slate-100">
               {completionRate}%
             </span>
@@ -152,7 +150,7 @@ const AIInsightsCard = ({
         {/* Insights List */}
         <div className="mt-6 space-y-3">
           <h4 className="flex items-center gap-2 font-semibold text-slate-900 dark:text-slate-100">
-            <Sparkles className="w-4 h-4 text-violet-600" />
+            <LuSparkles className="h-4 w-4 text-violet-600" />
             Smart Suggestions
           </h4>
           {loading && (
@@ -191,12 +189,12 @@ const AIInsightsCard = ({
               return (
                 <div
                   key={insight.id}
-                  className="group flex cursor-pointer items-start gap-3 rounded-lg bg-slate-50 p-3 transition-colors hover:bg-slate-100 dark:bg-slate-900/60 dark:hover:bg-slate-900"
+                  className="group flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200/70 bg-slate-50/90 p-3 transition-colors hover:bg-slate-100 dark:border-slate-800 dark:bg-slate-900/60 dark:hover:bg-slate-900"
                 >
                   <div
                     className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${config.bgColor}`}
                   >
-                    <Icon className={`w-4 h-4 ${config.color}`} />
+                    <Icon className={`h-4 w-4 ${config.color}`} />
                   </div>
                   <div className="flex-1 min-w-0">
                     <h5 className="text-sm font-medium text-slate-900 dark:text-slate-100">
@@ -206,20 +204,11 @@ const AIInsightsCard = ({
                       {insight.description}
                     </p>
                   </div>
-                  <ArrowRight className="mt-1 h-4 w-4 shrink-0 text-slate-400 transition-colors group-hover:text-violet-600" />
+                  <LuArrowRight className="mt-1 h-4 w-4 shrink-0 text-slate-400 transition-colors group-hover:text-violet-600" />
                 </div>
               );
             })}
         </div>
-
-        {/* View All Button */}
-        <Button
-          variant="ghost"
-          className="w-full mt-4 text-violet-600 hover:text-violet-700 hover:bg-violet-50"
-        >
-          View All Insights
-          <ArrowRight className="w-4 h-4 ml-2" />
-        </Button>
       </CardContent>
     </Card>
   );

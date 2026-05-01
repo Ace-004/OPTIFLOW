@@ -9,7 +9,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useTasks } from "@/context/TaskContext";
 import type { BackendTask } from "@/lib/types";
-import { CheckSquare2, RefreshCcw } from "lucide-react";
+import {
+  LuSquareCheckBig as CheckSquare2,
+  LuRefreshCcw as RefreshCcw,
+} from "react-icons/lu";
 
 export default function TasksPage() {
   const {
@@ -29,14 +32,20 @@ export default function TasksPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight">Tasks</h1>
+          <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
+            Tasks
+          </h1>
           <p className="text-slate-500">
             Active work, sorted by dynamic priority.
           </p>
         </div>
-        <Button variant="outline" onClick={() => void refreshTasks()}>
+        <Button
+          variant="outline"
+          className="w-full sm:w-auto"
+          onClick={() => void refreshTasks()}
+        >
           <RefreshCcw className="mr-2 h-4 w-4" />
           Refresh
         </Button>

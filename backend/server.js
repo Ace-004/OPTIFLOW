@@ -6,11 +6,27 @@ const cors=require('cors');
 const authRoutes=require('./routes/auth');
 const taskRoutes=require('./routes/task');
 const protect=require('./middleware/authMiddleware')
+const helmet =require('helmet');
+const ratelimit = require('express-rate-limit');
+const cookieParser = require('cookie-parser');
 
 const app= express();
-app.use(cors());
+// security headers
+app.use(helmet());
+// rate liomiting
+
+app.use(ratelimit({
+  windowMs:15*60*1000,
+  max:100,
+}))
+
+app.use(cors({
+  origin:"http://localhost:5173",
+  credentials:true,
+}));
 app.use(express.urlencoded({extended: true}));
 app.use(express.json());
+app.use(cookieParser());
 
 app.get('/',(req,res)=>{
     res.send('Hello World');

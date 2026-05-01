@@ -3,7 +3,11 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { useTasks } from "@/context/TaskContext";
-import { Activity, Flame, TrendingUp } from "lucide-react";
+import {
+  LuActivity as Activity,
+  LuFlame as Flame,
+  LuTrendingUp as TrendingUp,
+} from "react-icons/lu";
 
 export default function AnalyticsPage() {
   const { stats } = useTasks();
@@ -14,7 +18,9 @@ export default function AnalyticsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-semibold tracking-tight">Analytics</h1>
+        <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
+          Analytics
+        </h1>
         <p className="text-slate-500">
           Simple performance readout from the current session.
         </p>

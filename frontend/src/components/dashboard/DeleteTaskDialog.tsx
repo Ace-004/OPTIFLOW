@@ -1,7 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { AlertTriangle, Loader2, Trash2 } from "lucide-react";
+import {
+  LuTriangleAlert as AlertTriangle,
+  LuLoaderCircle as Loader2,
+  LuTrash2 as Trash2,
+} from "react-icons/lu";
 import {
   Dialog,
   DialogContent,
