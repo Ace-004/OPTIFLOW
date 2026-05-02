@@ -47,11 +47,6 @@ const navigationItems = [
     href: "/dashboard/analytics",
     icon: BarChart3,
   },
-  {
-    title: "AI Insights",
-    href: "/dashboard/insights",
-    icon: Sparkles,
-  },
 ];
 
 const Sidebar = ({

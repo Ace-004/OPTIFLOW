@@ -26,18 +26,18 @@ export default function CalendarPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
+        <h1 className="text-2xl font-semibold tracking-tight text-slate-950 dark:text-slate-100 sm:text-3xl">
           Calendar
         </h1>
-        <p className="text-slate-500">
+        <p className="text-slate-500 dark:text-slate-400">
           Deadlines pulled from your active tasks.
         </p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {upcoming.length === 0 && (
-          <Card className="md:col-span-2 xl:col-span-3">
-            <CardContent className="py-12 text-center text-slate-500">
+          <Card className="md:col-span-2 xl:col-span-3 dark:bg-slate-900/50 dark:border-slate-800">
+            <CardContent className="py-12 text-center text-slate-500 dark:text-slate-400">
               No deadlines have been added yet.
             </CardContent>
           </Card>
@@ -45,7 +45,7 @@ export default function CalendarPage() {
         {upcoming.map((task) => (
           <Card
             key={task._id}
-            className="surface-card border-slate-200/80 bg-white/90 dark:border-slate-800"
+            className="surface-card border-slate-200/80 bg-white/90 dark:border-slate-800 dark:bg-slate-900/50"
           >
             <CardHeader className="pb-2">
               <CardTitle className="flex items-start gap-2 text-base font-semibold leading-snug text-slate-900 dark:text-slate-100">
@@ -69,7 +69,7 @@ export default function CalendarPage() {
               </p>
               <button
                 type="button"
-                className="text-xs font-semibold text-violet-600 hover:text-violet-700"
+                className="text-xs font-semibold text-violet-600 hover:text-violet-700 dark:text-violet-400 dark:hover:text-violet-300"
                 onClick={() =>
                   setExpandedTaskId((current) =>
                     current === task._id ? null : task._id,

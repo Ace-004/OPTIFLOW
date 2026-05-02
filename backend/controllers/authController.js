@@ -21,19 +21,21 @@ exports.register = async (req, res, next) => {
     });
     const token = generateToken(newUser._id);
 
-    res.cookie('token',token,{
-      httpOnly:true,
-      secure:false,
-      sameSite:"none",
-      maxAge:60*60*1000
-    })
-    res
-      .status(201)
-      .json({
-        success: true,
-        message: "user registered",
-        data: newUser
-      });
+    const cookieOptions = {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      // use 'none' in production where frontend may be cross-site; use 'lax' for local dev
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      maxAge: 60 * 60 * 1000,
+      path: "/",
+    };
+
+    res.cookie("token", token, cookieOptions);
+    res.status(201).json({
+      success: true,
+      message: "user registered",
+      data: newUser,
+    });
   } catch (error) {
     console.log(error.message);
 
@@ -57,13 +59,16 @@ exports.login = async (req, res) => {
       return res.status(400).json({ message: "invalid credentials" });
     }
     const token = generateToken(user._id);
-     res.cookie('token',token,{
-      httpOnly:true,
-      secure:false,
-      sameSite:"none",
-      maxAge:60*60*1000
-    })
-    res.status(200).json({ success: true, message: "successful login"  });
+    const cookieOptions = {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      maxAge: 60 * 60 * 1000,
+      path: "/",
+    };
+
+    res.cookie("token", token, cookieOptions);
+    res.status(200).json({ success: true, message: "successful login" });
   } catch (err) {
     console.log(err);
     return res.status(500).json({ success: false, message: "server error" });

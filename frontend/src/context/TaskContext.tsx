@@ -39,6 +39,7 @@ export function TaskProvider({ children }: { children: ReactNode }) {
   const { isAuthenticated } = useAuth();
   const [tasks, setTasks] = useState<BackendTask[]>([]);
   const [completedTasks, setCompletedTasks] = useState<BackendTask[]>([]);
+  const [sessionCompletedTasks, setSessionCompletedTasks] = useState<BackendTask[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -52,13 +53,19 @@ export function TaskProvider({ children }: { children: ReactNode }) {
     setLoading(true);
     try {
       const response = await getTasksRequest();
-      const activeTasks = Array.isArray(response.data)
-        ? response.data.sort(
+      const activeTasks = Array.isArray(response.data?.active)
+        ? response.data.active.sort(
             (left, right) => getPriorityScore(right) - getPriorityScore(left),
+          )
+        : [];
+      const compTasks = Array.isArray(response.data?.completed)
+        ? response.data.completed.sort(
+            (left, right) => new Date(right.completedAt!).getTime() - new Date(left.completedAt!).getTime()
           )
         : [];
 
       setTasks(activeTasks);
+      setCompletedTasks(compTasks);
       setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unable to load tasks");
@@ -73,6 +80,7 @@ export function TaskProvider({ children }: { children: ReactNode }) {
     } else {
       setTasks([]);
       setCompletedTasks([]);
+      setSessionCompletedTasks([]);
       setError(null);
     }
   }, [isAuthenticated, refreshTasks]);
@@ -114,6 +122,7 @@ export function TaskProvider({ children }: { children: ReactNode }) {
       const response = await completeTaskRequest(taskId);
       setTasks((current) => current.filter((task) => task._id !== taskId));
       setCompletedTasks((current) => [response.data, ...current]);
+      setSessionCompletedTasks((current) => [response.data, ...current]);
     },
     [isAuthenticated],
   );
@@ -134,6 +143,7 @@ export function TaskProvider({ children }: { children: ReactNode }) {
   const stats = useMemo<TaskStats>(() => {
     const total = tasks.length + completedTasks.length;
     const completed = completedTasks.length;
+    const sessionCompleted = sessionCompletedTasks.length;
     const active = tasks.length;
     const urgent = tasks.filter((task) => getPriorityScore(task) >= 8).length;
     const combinedTasks = [...tasks, ...completedTasks];
@@ -148,10 +158,11 @@ export function TaskProvider({ children }: { children: ReactNode }) {
       total,
       active,
       completed,
+      sessionCompleted,
       urgent,
       averagePriority,
     };
-  }, [tasks, completedTasks]);
+  }, [tasks, completedTasks, sessionCompletedTasks]);
 
   const value = useMemo(
     () => ({

@@ -57,6 +57,7 @@ export interface TaskStats {
   total: number;
   active: number;
   completed: number;
+  sessionCompleted: number;
   urgent: number;
   averagePriority: number;
 }

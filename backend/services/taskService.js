@@ -2,8 +2,13 @@ const { generateText } = require("./gemini");
 const redis = require("../config/redis");
 
 const extractJSON = (text) => {
-  const match = text.match(/\{[\s\S]*\}/);
-  return match ? JSON.parse(match[0]) : null;
+  try {
+    const match = text.match(/\{[\s\S]*\}/);
+    return match ? JSON.parse(match[0]) : null;
+  } catch (error) {
+    console.error("AI JSON Parse error:", error, "Text:", text);
+    return null;
+  }
 };
 
 exports.analyzeTaskAI = async (description) => {
@@ -16,7 +21,7 @@ Analyze the Task and return JSON only.
 
 Format:
 {
-  "summary": "",
+  "summary": "A distinct, concise title summarizing the task (max 6 words). DO NOT just repeat the description.",
   "urgency": 1-5,
   "importance": 1-5,
   "complexity": {

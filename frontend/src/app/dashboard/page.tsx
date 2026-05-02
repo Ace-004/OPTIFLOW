@@ -5,27 +5,22 @@ import {
   LuPlus as Plus,
   LuRefreshCcw as RefreshCcw,
   LuSparkles as Sparkles,
+  LuClock3 as Clock3,
+  LuTarget as Target,
   LuTrendingUp as TrendingUp,
   LuCircleCheckBig as CheckCircle2,
-  LuClock3 as Clock3,
   LuFlame as Flame,
-  LuListTodo as ListTodo,
-  LuTarget as Target,
 } from "react-icons/lu";
 import AddTaskDialog from "@/components/dashboard/AddTaskDialog";
-import AIInsightsCard from "@/components/dashboard/AIInsightsCard";
 import CompleteTaskDialog from "@/components/dashboard/CompleteTaskDialog";
 import DeleteTaskDialog from "@/components/dashboard/DeleteTaskDialog";
-import StatsCard from "@/components/dashboard/StatsCard";
 import TaskCard from "@/components/dashboard/TaskCard";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/context/AuthContext";
 import { useTasks } from "@/context/TaskContext";
-import { getInsights } from "@/lib/api";
 import type { BackendTask } from "@/lib/types";
-import type { AIInsightsPayload } from "@/lib/types";
 import { formatTaskDate } from "@/lib/task-utils";
 
 export default function DashboardPage() {
@@ -46,10 +41,6 @@ export default function DashboardPage() {
   const [completingTask, setCompletingTask] = useState<BackendTask | null>(
     null,
   );
-  const [insightsPayload, setInsightsPayload] =
-    useState<AIInsightsPayload | null>(null);
-  const [insightsLoading, setInsightsLoading] = useState(false);
-  const [insightsError, setInsightsError] = useState<string | null>(null);
 
   const priorityTasks = useMemo(() => tasks.slice(0, 4), [tasks]);
   const upcomingDeadlines = useMemo(
@@ -66,48 +57,9 @@ export default function DashboardPage() {
   );
 
   const displayName = user?.name || user?.email?.split("@")[0] || "there";
-  const productivityScore = Math.min(100, 55 + stats.averagePriority * 5);
   const completionRate = stats.total
     ? Math.round((stats.completed / stats.total) * 100)
     : 0;
-
-  useEffect(() => {
-    if (!user) {
-      setInsightsPayload(null);
-      return;
-    }
-
-    let cancelled = false;
-
-    const loadInsights = async () => {
-      setInsightsLoading(true);
-      setInsightsError(null);
-      try {
-        const response = await getInsights();
-        if (!cancelled) {
-          setInsightsPayload(response.data);
-        }
-      } catch (err) {
-        if (!cancelled) {
-          setInsightsError(
-            err instanceof Error
-              ? err.message
-              : "Unable to load AI insights right now",
-          );
-        }
-      } finally {
-        if (!cancelled) {
-          setInsightsLoading(false);
-        }
-      }
-    };
-
-    void loadInsights();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [user, stats.total, stats.completed, stats.active, stats.averagePriority]);
 
   return (
     <div className="motion-fade-up space-y-6">
@@ -120,10 +72,21 @@ export default function DashboardPage() {
           <h1 className="text-2xl font-semibold tracking-tight text-slate-950 dark:text-slate-100 sm:text-3xl">
             Good to see you, {displayName}
           </h1>
-          <p className="mt-1 max-w-2xl text-slate-500 dark:text-slate-400">
-            {stats.active} active tasks, {stats.completed} completed in this
-            session, and a live priority queue that adapts as you work.
-          </p>
+          <div className="mt-4 inline-flex flex-wrap items-center gap-x-4 gap-y-2 rounded-2xl border border-slate-100 bg-slate-50/50 px-4 py-2 text-sm text-slate-500 backdrop-blur-sm dark:border-slate-800 dark:bg-slate-900/50 dark:text-slate-400">
+            <div className="flex items-center gap-1.5">
+              <div className="h-1.5 w-1.5 rounded-full bg-violet-500 animate-pulse" />
+              <span className="font-semibold text-slate-900 dark:text-slate-200">{stats.active}</span> active tasks
+            </div>
+            <div className="h-4 w-px bg-slate-200 dark:bg-slate-800 hidden sm:block" />
+            <div className="flex items-center gap-1.5">
+              <div className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+              <span className="font-semibold text-slate-900 dark:text-slate-200">{stats.sessionCompleted}</span> completed today
+            </div>
+            <div className="h-4 w-px bg-slate-200 dark:bg-slate-800 hidden sm:block" />
+            <div className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider text-slate-400">
+              Live Priority Engine Active
+            </div>
+          </div>
         </div>
 
         <div className="flex w-full flex-col items-stretch gap-3 sm:w-auto sm:flex-row sm:items-center">
@@ -159,45 +122,6 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
       )}
-
-      <div className="motion-fade-up grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4 [animation-delay:80ms]">
-        <StatsCard
-          title="Total Tasks"
-          value={stats.total}
-          change={`${stats.active} active right now`}
-          changeType="neutral"
-          icon={ListTodo}
-          iconColor="text-violet-600"
-          iconBgColor="bg-violet-100"
-        />
-        <StatsCard
-          title="Completed"
-          value={stats.completed}
-          change={`${completionRate}% completion rate`}
-          changeType="positive"
-          icon={CheckCircle2}
-          iconColor="text-emerald-600"
-          iconBgColor="bg-emerald-100"
-        />
-        <StatsCard
-          title="Urgent"
-          value={stats.urgent}
-          change="Tasks scoring at the top"
-          changeType="negative"
-          icon={Flame}
-          iconColor="text-orange-600"
-          iconBgColor="bg-orange-100"
-        />
-        <StatsCard
-          title="Average Priority"
-          value={stats.averagePriority}
-          change="Dynamic backend score"
-          changeType="positive"
-          icon={TrendingUp}
-          iconColor="text-blue-600"
-          iconBgColor="bg-blue-100"
-        />
-      </div>
 
       <div className="motion-fade-up grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.4fr)_minmax(340px,0.8fr)] [animation-delay:140ms]">
         <div className="space-y-6">
@@ -293,21 +217,6 @@ export default function DashboardPage() {
         </div>
 
         <div className="space-y-6">
-          <AIInsightsCard
-            insights={insightsPayload?.insights}
-            productivityScore={
-              insightsPayload?.metrics.productivityScore ?? productivityScore
-            }
-            completionRate={
-              insightsPayload?.metrics.completionRate ?? completionRate
-            }
-            focusTime={
-              insightsPayload?.metrics.focusTime ??
-              `${Math.max(stats.active, 1)}h tracked`
-            }
-            loading={insightsLoading}
-            error={insightsError}
-          />
 
           <Card className="surface-card">
             <CardHeader className="pb-4">

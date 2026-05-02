@@ -82,7 +82,7 @@ export default function TasksPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Completed This Session</CardTitle>
+            <CardTitle>Completed Tasks</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             {completedTasks.length === 0 && (

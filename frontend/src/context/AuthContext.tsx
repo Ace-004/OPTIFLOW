@@ -79,6 +79,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           };
         }
 
+        if (currentUser.id === session.userId) {
+          return currentUser;
+        }
+
         return {
           ...currentUser,
           id: session.userId,

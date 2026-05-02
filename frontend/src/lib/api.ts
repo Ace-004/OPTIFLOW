@@ -6,8 +6,9 @@ import {
   TaskFormValues,
 } from "./types";
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5000";
+// Use NEXT_PUBLIC_API_BASE_URL when set; otherwise use relative paths
+// so dev proxy (next.config.js rewrites) can forward requests to backend.
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "";
 
 export class ApiError extends Error {
   status: number;
@@ -110,7 +111,7 @@ export async function getSession() {
 }
 
 export async function getTasks() {
-  return request<{ success: boolean; data: BackendTask[] }>("/api/task", {
+  return request<{ success: boolean; data: { active: BackendTask[]; completed: BackendTask[] } }>("/api/task", {
     method: "GET",
   });
 }

@@ -22,32 +22,53 @@ exports.createTask = async (req, res) => {
 
     try {
       const ai = await analyzeTaskAI(description);
+      console.log(ai);
       if (!ai) throw new Error("AI returned invalid JSON");
-      summary = ai.summary;
-      urgency = ai.urgency;
-      const level = computeComplexityLevel(ai.complexity);
+      
+      summary = ai.summary || description.split(" ").slice(0, 12).join(" ");
+      urgency = ai.urgency || estimateUrgency(description, deadline);
+      
+      const defaultComplexity = estimateComplexity(description, deadline);
+      const aiComplexity = ai.complexity || { cognitive: defaultComplexity, technical: defaultComplexity, dependencies: defaultComplexity, effort: defaultComplexity };
+      const level = computeComplexityLevel(aiComplexity);
+      
       complexity = {
-        ...ai.complexity,
+        ...aiComplexity,
         level,
       };
+      
       const score = computePriorityAdvance({
-        urgency: ai.urgency,
-        importance: ai.importance,
-        effort: ai.complexity.effort,
+        urgency: urgency,
+        importance: ai.importance || 3,
+        effort: aiComplexity.effort || defaultComplexity,
       });
+      
       priority = {
         score,
-        urgency: ai.urgency,
-        importance: ai.importance,
-        effortWeight: ai.complexity.effort,
+        urgency: urgency,
+        importance: ai.importance || 3,
+        effortWeight: aiComplexity.effort || defaultComplexity,
         behaviorRisk: 1,
       };
     } catch (err) {
-      console.log("Gemini failed, using fallback" + err);
-      summary = description.split(" ").slice(0, 12).join(" ");
+      console.log("Gemini failed, using fallback: " + err);
+      summary = "[AI Unavailable] " + description.split(" ").slice(0, 12).join(" ");
       urgency = estimateUrgency(description, deadline);
-      complexity = estimateComplexity(description, deadline);
-      priority = computePriority(urgency, complexity);
+      const complexityValue = estimateComplexity(description, deadline);
+      complexity = {
+        level: complexityValue,
+        cognitive: complexityValue,
+        technical: complexityValue,
+        dependencies: complexityValue,
+        effort: complexityValue,
+      };
+      priority = {
+        score: computePriority(urgency, complexityValue),
+        urgency,
+        importance: 3,
+        effortWeight: complexityValue,
+        behaviorRisk: 1,
+      };
     }
 
     const task = await Task.create({
@@ -88,8 +109,8 @@ exports.getTask = async (req, res, next) => {
       await task.save();
     }
     active.sort((a, b) => b.priorityDynamic - a.priorityDynamic);
-    await redis.safeSet(cacheKey, JSON.stringify(active), 600);
-    res.status(200).json({ success: true, data: active });
+    await redis.safeSet(cacheKey, JSON.stringify({ active, completed }), 600);
+    res.status(200).json({ success: true, data: { active, completed } });
   } catch (error) {
     return res.status(500).json({ success: false, message: "server error" });
   }
@@ -108,7 +129,7 @@ exports.getInsights = async (req, res) => {
       .limit(200);
 
     const payload = await buildInsightsPayload(tasks);
-    await redis.safeSet(cacheKey, JSON.stringify(payload), 300);
+    await redis.safeSet(cacheKey, JSON.stringify(payload), 900);
 
     return res.status(200).json({ success: true, data: payload });
   } catch (error) {
@@ -135,27 +156,30 @@ exports.updateTask = async (req, res) => {
         const ai = await analyzeTaskAI(description);
         if (!ai) throw new Error("AI returned invalid JSON");
 
-        const level = computeComplexityLevel(ai.complexity);
+        const defaultComplexity = estimateComplexity(description, deadline !== undefined ? deadline : task.deadline);
+        const aiComplexity = ai.complexity || { cognitive: defaultComplexity, technical: defaultComplexity, dependencies: defaultComplexity, effort: defaultComplexity };
+        const level = computeComplexityLevel(aiComplexity);
+
         task.complexity = {
-          ...ai.complexity,
+          ...aiComplexity,
           level,
         };
 
         const score = computePriorityAdvance({
-          urgency: ai.urgency,
-          importance: ai.importance,
-          effort: ai.complexity.effort,
+          urgency: ai.urgency || estimateUrgency(description, deadline !== undefined ? deadline : task.deadline),
+          importance: ai.importance || 3,
+          effort: aiComplexity.effort || defaultComplexity,
           behaviorRisk: task.priority?.behaviorRisk || 1,
         });
 
         task.priority = {
           score,
-          urgency: ai.urgency,
-          importance: ai.importance,
-          effortWeight: ai.complexity.effort,
+          urgency: ai.urgency || estimateUrgency(description, deadline !== undefined ? deadline : task.deadline),
+          importance: ai.importance || 3,
+          effortWeight: aiComplexity.effort || defaultComplexity,
           behaviorRisk: task.priority?.behaviorRisk || 1,
         };
-        task.summary = ai.summary;
+        task.summary = ai.summary || description.split(" ").slice(0, 12).join(" ");
       } catch (err) {
         const finalDeadline = deadline !== undefined ? deadline : task.deadline;
         const urgency = estimateUrgency(description, finalDeadline);
@@ -175,7 +199,7 @@ exports.updateTask = async (req, res) => {
           effortWeight: complexityValue,
           behaviorRisk: task.priority?.behaviorRisk || 1,
         };
-        task.summary = description.split(" ").slice(0, 12).join(" ");
+        task.summary = "[AI Unavailable] " + description.split(" ").slice(0, 12).join(" ");
       }
 
       task.description = description;
