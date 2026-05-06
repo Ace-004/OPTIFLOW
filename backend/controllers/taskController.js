@@ -80,9 +80,16 @@ exports.createTask = async (req, res) => {
       priority,
       deadline,
     });
-    await redis.safeDel(`tasks:${req.user}`);
-    await redis.safeDel(`insights:${req.user}`);
+    
+    try {
+      await redis.safeDel(`tasks:${req.user}`);
+      await redis.safeDel(`insights:${req.user}`);
+    } catch (redisError) {
+      console.error('Redis error during cache invalidation:', redisError);
+    }
+    
     res.status(201).json({ success: true, data: task });
+    return;
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, message: "Server error" });

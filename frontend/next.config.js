@@ -1,3 +1,4 @@
+
 /**
  * Simple dev proxy: forward /api and /me to backend at localhost:5000
  * This keeps browser origin the same so HttpOnly cookies work in development.
@@ -15,4 +16,16 @@ module.exports = {
       },
     ];
   },
+  devIndicators: {
+    buildActivity: false,  // Hides build activity indicators
+    autoPrerender: false,  // Hides prerendered page indicators (older Next.js)
+  },
 };
+
+// next.config.js
+// module.exports = {
+//   devIndicators: {
+//     buildActivity: false,  // Hides build activity indicators
+//     autoPrerender: false,  // Hides prerendered page indicators (older Next.js)
+//   },
+// };
