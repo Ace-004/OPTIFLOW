@@ -13,6 +13,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import Password from "@/components/ui/password";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/context/AuthContext";
 
@@ -133,9 +134,8 @@ export default function RegisterPage() {
 
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
-              <Input
+              <Password
                 id="password"
-                type="password"
                 value={form.password}
                 onChange={(event) =>
                   setForm((current) => ({
@@ -145,15 +145,13 @@ export default function RegisterPage() {
                 }
                 placeholder="••••••••"
                 required
-                className="h-11 bg-slate-50 focus-visible:ring-violet-500 dark:bg-slate-900"
               />
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="confirmPassword">Confirm Password</Label>
-              <Input
+              <Password
                 id="confirmPassword"
-                type="password"
                 value={form.confirmPassword}
                 onChange={(event) =>
                   setForm((current) => ({
@@ -163,7 +161,6 @@ export default function RegisterPage() {
                 }
                 placeholder="••••••••"
                 required
-                className="h-11 bg-slate-50 focus-visible:ring-violet-500 dark:bg-slate-900"
               />
             </div>
 

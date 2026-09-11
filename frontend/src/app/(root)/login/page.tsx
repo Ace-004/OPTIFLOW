@@ -13,6 +13,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import Password from "@/components/ui/password";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/context/AuthContext";
 
@@ -101,16 +102,9 @@ export default function LoginPage() {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="password">Password</Label>
-                <a
-                  href="#"
-                  className="text-sm text-violet-600 hover:text-violet-700"
-                >
-                  Forgot password?
-                </a>
               </div>
-              <Input
+              <Password
                 id="password"
-                type="password"
                 value={form.password}
                 onChange={(event) =>
                   setForm((current) => ({
@@ -120,7 +114,6 @@ export default function LoginPage() {
                 }
                 placeholder="••••••••"
                 required
-                className="h-11 bg-slate-50 focus-visible:ring-violet-500 dark:bg-slate-900"
               />
             </div>
 
