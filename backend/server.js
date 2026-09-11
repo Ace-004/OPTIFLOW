@@ -43,6 +43,10 @@ app.get("/me", protect, (req, res, next) => {
   res.json({ userId: req.user });
 });
 
+app.use("/health", async (req, res) => {
+  res.json({ status: "ok" });
+});
+
 connectDB()
   .then(() => {
     console.log("Connected to MongoDB");
