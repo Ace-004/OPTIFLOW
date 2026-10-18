@@ -1,5 +1,4 @@
 const jwt=require('jsonwebtoken');
-const { success } = require('zod');
 
 const protect=async(req,res,next)=>{
   const token = req.cookies.token;

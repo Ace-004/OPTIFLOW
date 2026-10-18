@@ -11,6 +11,9 @@ const ratelimit = require("express-rate-limit");
 const cookieParser = require("cookie-parser");
 
 const app = express();
+// Behind a hosting proxy (Render, Railway, ...) req.ip is the proxy unless this is set,
+// which would put every user in the same rate-limit bucket.
+app.set("trust proxy", 1);
 // security headers
 app.use(helmet());
 // rate limiting
@@ -21,11 +24,20 @@ app.use(
   }),
 );
 
-// During development allow requests from the frontend dev server and echo origin
-// so the Access-Control-Allow-Origin header is present on responses.
+// Only the configured frontend origin(s) may make credentialed requests.
+// FRONTEND_URL can be a comma-separated list.
+const allowedOrigins = (process.env.FRONTEND_URL || "http://localhost:3000")
+  .split(",")
+  .map((o) => o.trim())
+  .filter(Boolean);
+
 app.use(
   cors({
-    origin: true, // reflect request origin
+    origin: (origin, callback) => {
+      // no Origin header = same-origin request, curl, server-to-server
+      if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
+      return callback(null, false);
+    },
     credentials: true,
   }),
 );
@@ -36,7 +48,13 @@ app.use(cookieParser());
 app.get("/", (req, res) => {
   res.send("Hello World");
 });
-app.use("/api/auth", authRoutes);
+// stricter limit on login/register than the global one
+const authLimiter = ratelimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  message: { success: false, message: "too many attempts, try again later" },
+});
+app.use("/api/auth", authLimiter, authRoutes);
 app.use("/api", protect, taskRoutes);
 
 app.get("/me", protect, (req, res, next) => {
@@ -50,8 +68,9 @@ app.use("/health", async (req, res) => {
 connectDB()
   .then(() => {
     console.log("Connected to MongoDB");
-    app.listen(5000, () => {
-      console.log(`http://localhost:5000`);
+    const PORT = process.env.PORT || 5000;
+    app.listen(PORT, () => {
+      console.log(`listening on port ${PORT}`);
     });
   })
   .catch((err) => {
