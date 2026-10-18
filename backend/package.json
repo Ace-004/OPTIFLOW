@@ -6,7 +6,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js",
-    "dev": "nodemon server.js"
+    "dev": "nodemon server.js",
+    "bench:seed": "node scripts/seed-benchmark.js",
+    "bench": "node scripts/bench.js"
   },
   "keywords": [],
   "author": "",

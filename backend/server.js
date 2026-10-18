@@ -20,7 +20,8 @@ app.use(helmet());
 app.use(
   ratelimit({
     windowMs: 15 * 60 * 1000,
-    max: 100,
+    // overridable so load tests are not throttled; keep the default in production
+    max: Number(process.env.RATE_LIMIT_MAX) || 100,
   }),
 );
 
