@@ -1,0 +1,50 @@
+{
+  "label": "before-n1000-run1",
+  "when": "2026-10-18T13:32:11.343Z",
+  "env": {
+    "node": "v22.16.0",
+    "platform": "win32 x64",
+    "cpus": 20,
+    "memGB": 16
+  },
+  "tasks": {
+    "active": 696,
+    "completed": 304,
+    "total": 1000,
+    "responseKB": 535.3
+  },
+  "cacheMissMs": {
+    "n": 30,
+    "min": 537.6,
+    "p50": 556.5,
+    "p95": 584.6,
+    "p99": 587.8,
+    "max": 587.8,
+    "mean": 559
+  },
+  "cacheHitMs": {
+    "n": 200,
+    "min": 8,
+    "p50": 10.5,
+    "p95": 14.4,
+    "p99": 22.9,
+    "max": 30.1,
+    "mean": 11
+  },
+  "load": {
+    "seconds": 15.3,
+    "concurrency": 50,
+    "requests": 2711,
+    "errors": 0,
+    "rps": 177.6,
+    "latency": {
+      "n": 2711,
+      "min": 13,
+      "p50": 274.9,
+      "p95": 326.7,
+      "p99": 357.8,
+      "max": 398,
+      "mean": 277.2
+    }
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "label": "before-n200",
+  "when": "2026-10-18T08:59:32.338Z",
+  "env": {
+    "node": "v22.16.0",
+    "platform": "win32 x64",
+    "cpus": 20,
+    "memGB": 16
+  },
+  "tasks": {
+    "active": 152,
+    "completed": 48,
+    "total": 200,
+    "responseKB": 106
+  },
+  "cacheMissMs": {
+    "n": 30,
+    "min": 19.8,
+    "p50": 20.9,
+    "p95": 28.1,
+    "p99": 34.4,
+    "max": 34.4,
+    "mean": 22
+  },
+  "cacheHitMs": {
+    "n": 200,
+    "min": 2.6,
+    "p50": 3.2,
+    "p95": 4.2,
+    "p99": 5,
+    "max": 5.3,
+    "mean": 3.4
+  },
+  "load": {
+    "seconds": 15,
+    "concurrency": 50,
+    "requests": 11034,
+    "errors": 0,
+    "rps": 733.4,
+    "latency": {
+      "n": 11034,
+      "min": 8.3,
+      "p50": 65.8,
+      "p95": 86.3,
+      "p99": 104.7,
+      "max": 118.7,
+      "mean": 67.8
+    }
+  }
+}
