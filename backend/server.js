@@ -26,20 +26,26 @@ app.use(
 
 // Only the configured frontend origin(s) may make credentialed requests.
 // FRONTEND_URL can be a comma-separated list.
-const allowedOrigins = (process.env.FRONTEND_URL || process.env.CUSTOM_DOMAIN || "http://localhost:3000")
-  .split(",")
-  .map((o) => o.trim())
+const allowedOrigins = [
+  ...(process.env.FRONTEND_URL || "").split(","),
+  ...(process.env.CUSTOM_DOMAIN || "").split(","),
+  "http://localhost:3000",
+  "http://localhost:5173",
+]
+  .map((origin) => origin.trim())
   .filter(Boolean);
 
 app.use(
   cors({
     origin: (origin, callback) => {
-      // no Origin header = same-origin request, curl, server-to-server
-      if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
-      return callback(null, false);
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error(`CORS blocked origin: ${origin}`));
     },
     credentials: true,
-  }),
+  })
 );
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
