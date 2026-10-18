@@ -26,7 +26,7 @@ app.use(
 
 // Only the configured frontend origin(s) may make credentialed requests.
 // FRONTEND_URL can be a comma-separated list.
-const allowedOrigins = (process.env.FRONTEND_URL || "http://localhost:3000")
+const allowedOrigins = (process.env.FRONTEND_URL || process.env.CUSTOM_DOMAIN || "http://localhost:3000")
   .split(",")
   .map((o) => o.trim())
   .filter(Boolean);
