@@ -12,6 +12,7 @@ import {
 import {
   getSession,
   loginUser,
+  logoutUser,
   normalizeAuthUser,
   registerUser,
 } from "@/lib/api";
@@ -180,8 +181,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [persistSession],
   );
 
-  const logout = useCallback(() => {
-    persistSession(null);
+  const logout = useCallback(async () => {
+    try {
+      // clear the HttpOnly cookie on the server, otherwise /me would sign the user straight back in
+      await logoutUser();
+    } catch {
+      // still sign out locally if the request fails
+    } finally {
+      persistSession(null);
+    }
   }, [persistSession]);
 
   const value = useMemo(

@@ -104,6 +104,13 @@ export async function loginUser(payload: { email: string; password: string }) {
   });
 }
 
+export async function logoutUser() {
+  // the auth cookie is HttpOnly, so only the server can clear it
+  return request<{ success: boolean }>("/api/auth/logout", {
+    method: "POST",
+  });
+}
+
 export async function getSession() {
   return request<{ userId: string }>("/me", {
     method: "GET",
