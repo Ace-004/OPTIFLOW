@@ -100,6 +100,19 @@ npm run dev               # http://localhost:3000
 | GET | `/api/insights` | AI-generated insights and metrics |
 | GET | `/health` | Health check |
 
+## Performance
+
+Local benchmark (Windows, 20 CPUs, 16 GB; MongoDB and Redis in Docker on the same machine; 30 requests per run). `GET /api/task` on a cache miss, before and after replacing one `save()` per active task with a single `bulkWrite`:
+
+| Dataset | Before (p50) | After (p50) |
+|---|---|---|
+| 200 tasks (~140 active) | ~120 ms | ~21 ms |
+| 1,000 tasks (~700 active, 535 KB response) | 557 ms | 89 ms |
+
+Cache hits are unaffected: ~3 ms at 200 tasks, ~10 ms at 1,000. A fresh Gemini analysis averaged ~3.3 s versus ~11 ms for a repeated description from the cache (n=5).
+
+Numbers depend on the machine, and the database ran locally, so real network latency to a hosted database is not included. Raw results are in `backend/scripts/bench-results/`. To reproduce: `npm run bench:seed -- 1000`, start the server (with `RATE_LIMIT_MAX` raised), then `npm run bench`.
+
 ## Known limitations
 
 - Dynamic priorities are recalculated when the task list is loaded (at most every 10 minutes because of the cache), not by a background scheduler.
