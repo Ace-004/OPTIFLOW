@@ -1,0 +1,76 @@
+{
+  "label": "before-n200",
+  "when": "2026-10-18T08:43:48.967Z",
+  "env": {
+    "node": "v22.16.0",
+    "platform": "win32 x64",
+    "cpus": 20,
+    "memGB": 16
+  },
+  "tasks": {
+    "active": 130,
+    "completed": 70,
+    "total": 200,
+    "responseKB": 107.9
+  },
+  "cacheMissMs": {
+    "n": 30,
+    "min": 107.5,
+    "p50": 112.6,
+    "p95": 134.7,
+    "p99": 141.3,
+    "max": 141.3,
+    "mean": 116.1
+  },
+  "cacheHitMs": {
+    "n": 200,
+    "min": 3,
+    "p50": 3.4,
+    "p95": 4.9,
+    "p99": 5.2,
+    "max": 10.3,
+    "mean": 3.6
+  },
+  "load": {
+    "seconds": 15.1,
+    "concurrency": 50,
+    "requests": 10163,
+    "errors": 0,
+    "rps": 674.5,
+    "latency": {
+      "n": 10163,
+      "min": 6.1,
+      "p50": 72.1,
+      "p95": 89.7,
+      "p99": 104.3,
+      "max": 134.2,
+      "mean": 73.7
+    }
+  },
+  "ai": {
+    "uniqueDescriptions": {
+      "latency": {
+        "n": 5,
+        "min": 1962.9,
+        "p50": 3144.9,
+        "p95": 5379.4,
+        "p99": 5379.4,
+        "max": 5379.4,
+        "mean": 3330.3
+      },
+      "aiUnavailable": 0
+    },
+    "repeatedDescriptions": {
+      "latency": {
+        "n": 5,
+        "min": 7.6,
+        "p50": 12.4,
+        "p95": 15.2,
+        "p99": 15.2,
+        "max": 15.2,
+        "mean": 11.3
+      },
+      "aiUnavailable": 0
+    }
+  }
+}

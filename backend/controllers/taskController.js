@@ -109,12 +109,22 @@ exports.getTask = async (req, res, next) => {
     const active = tasks.filter((t) => !t.completedAt);
 
     const behaviorRisk = computeBehaviorRiskFromHistory(completed);
+    const evaluatedAt = new Date();
+    const updates = [];
     for (const task of active) {
       const dynamic = reprioritizeTask(task, behaviorRisk);
+      // set on the in-memory doc so the response includes the new values
       task.priorityDynamic = dynamic;
-      task.lastEvaluatedAt = new Date();
-      await task.save();
+      task.lastEvaluatedAt = evaluatedAt;
+      updates.push({
+        updateOne: {
+          filter: { _id: task._id },
+          update: { $set: { priorityDynamic: dynamic, lastEvaluatedAt: evaluatedAt } },
+        },
+      });
     }
+    // one round trip instead of one save() per active task
+    if (updates.length) await Task.bulkWrite(updates, { ordered: false });
     active.sort((a, b) => b.priorityDynamic - a.priorityDynamic);
     await redis.safeSet(cacheKey, JSON.stringify({ active, completed }), 600);
     res.status(200).json({ success: true, data: { active, completed } });
